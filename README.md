@@ -17,6 +17,20 @@
 
 ## Python
 
+### Installation
+
+Install pycrytodome within your system
+
+```sh
+pip install pycryptodome
+```
+
+### AES
+
+### RC4
+
+### DES
+
 ## Golang
 
 ## JavaScript
