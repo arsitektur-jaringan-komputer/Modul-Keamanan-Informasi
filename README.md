@@ -232,43 +232,45 @@ func Unpad(input []byte) ([]byte, error) {
 
 Now, we can implement aes encryption using CBC mode utilizing the `aesCbcEncrypt()` and `aesCbcDecrypt()` functions.
 ```go
-// initiate secret key
-key := make([]byte, 16) // AES-128
-// key := make([]byte, 32) // AES-192
-// key := make([]byte, 64)	// AES-256
-_, err := io.ReadFull(rand.Reader, key)
-if err != nil {
-  log.Fatal(err)
+func main() {
+	// initiate secret key
+	key := make([]byte, 16) // AES-128
+	// key := make([]byte, 24) // AES-192
+	// key := make([]byte, 32)	// AES-256
+	_, err := io.ReadFull(rand.Reader, key)
+	if err != nil {
+	log.Fatal(err)
+	}
+
+	// initialize data we want to encrypt
+	plaintext := []byte("abcdefgh12345678asdlkasjn")
+	// we can also encrypt a file
+	// plaintext, err = os.ReadFile("./tes.txt")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	pad_plaintext := Pad(plaintext, 16)
+
+	ciphertext, err := aesCbcEncrypt(pad_plaintext, key)
+	if err != nil {
+	log.Fatal(err)
+	}
+
+	pad_decrypt, err := aesCbcDecrypt(ciphertext, key)
+	if err != nil {
+	log.Fatal(err)
+	}
+
+	decrypt, err := Unpad(pad_decrypt)
+	if err != nil {
+	log.Fatal(err)
+	}
+
+	fmt.Printf("AES\n")
+	fmt.Printf("Plaintext: %s\n", string(plaintext))
+	fmt.Printf("Ciphertext (base64): %s\n", base64.StdEncoding.EncodeToString(ciphertext))
+	fmt.Printf("Decrypted Ciphertext: %s\n", string(decrypt))
 }
-
-// initialize data we want to encrypt
-plaintext := []byte("abcdefgh12345678asdlkasjn")
-// we can also encrypt a file
-// plaintext, err = os.ReadFile("./tes.txt")
-// if err != nil {
-// 	log.Fatal(err)
-// }
-pad_plaintext := Pad(plaintext, 16)
-
-ciphertext, err := aesCbcEncrypt(pad_plaintext, key)
-if err != nil {
-  log.Fatal(err)
-}
-
-pad_decrypt, err := aesCbcDecrypt(ciphertext, key)
-if err != nil {
-  log.Fatal(err)
-}
-
-decrypt, err := Unpad(pad_decrypt)
-if err != nil {
-  log.Fatal(err)
-}
-
-fmt.Printf("AES\n")
-fmt.Printf("Plaintext: %s\n", string(plaintext))
-fmt.Printf("Ciphertext: %s\n", string(ciphertext))
-fmt.Printf("Decrypted Ciphertext: %s\n", string(decrypt))
 ```
 For other block modes, you can use this function provided in the `crypto/cipher` package:
 - CFB: `NewCFBDecrypter` and `NewCFBEncrypter`
@@ -357,7 +359,7 @@ func main() {
 	}
 
 	fmt.Printf("Plaintext: %s\n", string(plaintext))
-	fmt.Printf("Ciphertext: %s\n", string(ciphertext))
+	fmt.Printf("Ciphertext (base64): %s\n", base64.StdEncoding.EncodeToString(ciphertext))
 	fmt.Printf("Decrypted Ciphertext: %s\n", string(decrypted))
 }
 ```
