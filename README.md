@@ -465,6 +465,38 @@ func main() {
 
 ### AES
 
+### Source Code
+
+```js
+const crypto = require("crypto");
+const cryptoJs = require("crypto-js");
+
+const generateKey = (length) => {
+  const key = crypto.randomBytes(length);
+  return key.toString("hex");
+};
+
+const encrypt = (plaintext, key) => {
+  const encrypted = cryptoJs.AES.encrypt(plaintext, key);
+  return encrypted;
+};
+
+const decrypt = (ciphertext, key) => {
+  const decrypted = cryptoJs.AES.decrypt(ciphertext, key);
+  return decrypted;
+};
+
+const key = generateKey(16);
+const plaintext = "Hello, World!";
+const encrypted = encrypt(plaintext, key);
+const decrypted = decrypt(encrypted, key);
+
+console.log("Key:", key);
+console.log("Plaintext:", plaintext);
+console.log("Encrypted:", encrypted.toString());
+console.log("Decrypted:", decrypted.toString(cryptoJs.enc.Utf8));
+```
+
 ### RC4
 ```js
 const crypto = require("crypto")
@@ -571,6 +603,56 @@ echo "Decrypted Text: " . $decrypted_data . "\n";
 Encryption key is a secret value used to do encryption and decryption, while the IV or Initialization Vector is a random or pseudo-random value used with the key to ensure that same plaintext won't have same ciphertext everytime it produced.
 Resource,
 https://www.phpcluster.com/aes-encryption-and-decryption-in-php/
+
+### DES
+
+#### Source Code
+
+```php
+<?php
+
+function get_methods($filter)
+{
+  $methods = openssl_get_cipher_methods(true);
+  $filtered_methods = array_filter($methods, function ($method) use ($filter) {
+    return strpos($method, $filter) !== false;
+  });
+  return $filtered_methods;
+}
+
+function generate_key($length)
+{
+  return openssl_random_pseudo_bytes($length);
+}
+
+function encrypt($data, $key, $method)
+{
+  $iv_length = openssl_cipher_iv_length($method);
+  $iv = openssl_random_pseudo_bytes($iv_length);
+  $encrypted = openssl_encrypt($data, $method, $key, OPENSSL_RAW_DATA, $iv);
+  return base64_encode($iv . $encrypted);
+}
+
+function decrypt($data, $key, $method)
+{
+  $data = base64_decode($data);
+  $iv_length = openssl_cipher_iv_length($method);
+  $iv = substr($data, 0, $iv_length);
+  $data = substr($data, $iv_length);
+  return openssl_decrypt($data, $method, $key, OPENSSL_RAW_DATA, $iv);
+}
+
+$methods = 'des-ede3-cbc';
+$key = generate_key(16);
+$plaintext = 'Hello, World!';
+$encrypted = encrypt($plaintext, $key, $methods);
+$decrypted = decrypt($encrypted, $key, $methods);
+
+echo "Key: " . base64_encode($key) . "\n";
+echo "Plaintext: $plaintext\n";
+echo "Encrypted: $encrypted\n";
+echo "Decrypted: $decrypted\n";
+```
 
 ### RC4
 
