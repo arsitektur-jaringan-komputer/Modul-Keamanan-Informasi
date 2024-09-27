@@ -57,6 +57,39 @@ print("Plaintext: ",plaintext)
 
 
 ### RC4
+```python
+from Crypto.Cipher import ARC4
+from Crypto.Random import get_random_bytes
+
+def encrypt(key, plaintext):
+    cipher = ARC4.new(key)
+    ciphertext = cipher.encrypt(plaintext)
+    return ciphertext
+
+def decrypt(key, ciphertext):
+    cipher = ARC4.new(key)
+    plaintext = cipher.encrypt(ciphertext)
+    return plaintext
+
+def generate_key(length):
+    key = get_random_bytes(length)
+    return key
+
+def main():
+    plaintext = bytes(input("Plaintext: "), encoding='UTF-8')
+
+    key = generate_key(16)
+    ciphertext = encrypt(key, plaintext)
+    decrypted_ciphertext = decrypt(key, ciphertext)
+
+    print(f'Key: {key}')
+    print(f'Plaintext: {plaintext}')
+    print(f'Ciphertext: {ciphertext}')
+    print(f'Decrypted ciphertext: {decrypted_ciphertext}')
+
+if __name__ == '__main__':
+	main()
+```
 
 ### DES
 
@@ -336,6 +369,36 @@ func main() {
 ### AES
 
 ### RC4
+```js
+const crypto = require("crypto")
+const cryptoRC4   = require("crypto-js")
+
+const generateKey = (length) => {
+    const key = crypto.randomBytes(length)
+    return key.toString("hex")
+}
+
+const encrypt = (key, plaintext) => {
+    var encrypted = cryptoRC4.RC4.encrypt(plaintext, key)
+
+    return encrypted
+}
+
+const decrypt = (key, ciphertext) => {
+    var decrypted = cryptoRC4.RC4.decrypt(ciphertext, key)
+
+    return decrypted
+}
+
+const key = generateKey(16)
+var plaintext = 'Risa cantik banget'
+var ciphertext = encrypt(key, plaintext)
+var decrypted_text = decrypt(key, ciphertext)
+
+console.log("Plaintext: ", plaintext)
+console.log("Ciphertext: ", ciphertext.toString())
+console.log("Decrypted Text: ", decrypted_text.toString(cryptoRC4.enc.Utf8))
+```
 
 ### DES
 
