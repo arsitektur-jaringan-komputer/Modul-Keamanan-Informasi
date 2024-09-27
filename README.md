@@ -364,6 +364,103 @@ func main() {
 
 ### DES
 
+### DES
+
+#### Source Code
+
+```go
+package main
+
+import (
+	"bytes"
+	"crypto/cipher"
+	"crypto/des"
+	"encoding/base64"
+	"fmt"
+)
+
+// Padding for DES block size (8 bytes)
+func pad(src []byte) []byte {
+	padding := des.BlockSize - len(src)%des.BlockSize
+	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(src, padtext...)
+}
+
+// Unpadding the decrypted data
+func unpad(src []byte) []byte {
+	length := len(src)
+	unpadding := int(src[length-1])
+	return src[:(length - unpadding)]
+}
+
+// DES Encryption function
+func desEncrypt(plaintext, key []byte) (string, error) {
+	block, err := des.NewCipher(key)
+	if err != nil {
+		return "", err
+	}
+
+	plaintext = pad(plaintext)
+	ciphertext := make([]byte, len(plaintext))
+
+	iv := key[:des.BlockSize] // DES uses 8 bytes block size, use part of the key as IV
+
+	mode := cipher.NewCBCEncrypter(block, iv)
+	mode.CryptBlocks(ciphertext, plaintext)
+
+	// Encode ciphertext to base64 for readable output
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
+}
+
+// DES Decryption function
+func desDecrypt(ciphertextBase64 string, key []byte) (string, error) {
+	ciphertext, err := base64.StdEncoding.DecodeString(ciphertextBase64)
+	if err != nil {
+		return "", err
+	}
+
+	block, err := des.NewCipher(key)
+	if err != nil {
+		return "", err
+	}
+
+	if len(ciphertext) < des.BlockSize {
+		return "", fmt.Errorf("ciphertext too short")
+	}
+
+	iv := key[:des.BlockSize]
+	mode := cipher.NewCBCDecrypter(block, iv)
+
+	plaintext := make([]byte, len(ciphertext))
+	mode.CryptBlocks(plaintext, ciphertext)
+
+	plaintext = unpad(plaintext)
+
+	return string(plaintext), nil
+}
+
+func main() {
+	key := []byte("12345678") // DES key must be 8 bytes
+	plaintext := "Hello, World!"
+
+	// Encrypt
+	encrypted, err := desEncrypt([]byte(plaintext), key)
+	if err != nil {
+		fmt.Println("Error encrypting:", err)
+		return
+	}
+	fmt.Println("Encrypted (Base64):", encrypted)
+
+	// Decrypt
+	decrypted, err := desDecrypt(encrypted, key)
+	if err != nil {
+		fmt.Println("Error decrypting:", err)
+		return
+	}
+	fmt.Println("Decrypted:", decrypted)
+}
+```
+
 ## JavaScript
 
 ### AES
@@ -474,3 +571,60 @@ echo "Decrypted Text: " . $decrypted_data . "\n";
 Encryption key is a secret value used to do encryption and decryption, while the IV or Initialization Vector is a random or pseudo-random value used with the key to ensure that same plaintext won't have same ciphertext everytime it produced.
 Resource,
 https://www.phpcluster.com/aes-encryption-and-decryption-in-php/
+
+### RC4
+
+#### Source Code
+
+```php
+<?php
+// RC4 encryption/decryption function
+function rc4($key, $data) {
+    // Key-scheduling algorithm (KSA)
+    $keyLength = strlen($key);
+    $S = range(0, 255);
+    $j = 0;
+
+    // Initialize permutation in S
+    for ($i = 0; $i < 256; $i++) {
+        $j = ($j + $S[$i] + ord($key[$i % $keyLength])) % 256;
+        // Swap S[i] and S[j]
+        $temp = $S[$i];
+        $S[$i] = $S[$j];
+        $S[$j] = $temp;
+    }
+
+    // Pseudo-random generation algorithm (PRGA)
+    $i = $j = 0;
+    $result = '';
+
+    for ($n = 0; $n < strlen($data); $n++) {
+        $i = ($i + 1) % 256;
+        $j = ($j + $S[$i]) % 256;
+
+        // Swap S[i] and S[j]
+        $temp = $S[$i];
+        $S[$i] = $S[$j]; 
+        $S[$j] = $temp;
+
+        // Generate the next byte of the key stream and XOR with the data
+        $K = $S[($S[$i] + $S[$j]) % 256];
+        $result .= chr(ord($data[$n]) ^ $K);
+    }
+
+    return $result;
+}
+
+// Test the RC4 function
+$key = "testkey";          // The encryption key
+$data = "Hello World";     // The data to encrypt
+
+// Encrypt the data
+$encrypted_data = rc4($key, $data);
+echo "Encrypted Data (hex): " . bin2hex($encrypted_data) . "\n";
+
+// Decrypt the data (RC4 is symmetric, so decryption is the same as encryption)
+$decrypted_data = rc4($key, $encrypted_data);
+echo "Decrypted Data: " . $decrypted_data . "\n";
+?>
+```
