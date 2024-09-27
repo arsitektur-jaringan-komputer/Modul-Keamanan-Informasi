@@ -27,9 +27,64 @@ pip install pycryptodome
 
 ### AES
 
+```python
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+from Crypto.Util.Padding import pad, unpad
+from base64 import b64encode, b64decode
+
+# initiate 16 byte key for aes and iv because we use CBC mode
+key = get_random_bytes(16) 
+iv = get_random_bytes(16)
+
+# inititate encryptor
+aes = AES.new(key, AES.MODE_CBC, iv)
+
+plaintext = b'GedaGediGedaGedao'
+
+# add padding to fullfil the block size
+# encode to b64 for easier storing
+ciphertext = b64encode(aes.encrypt(pad(plaintext, AES.block_size))).decode('utf-8')
+print("Ciphertext:",ciphertext)
+
+# initiate decryptor
+aes = AES.new(key, AES.MODE_CBC, iv)
+
+# decrypt the ciphertext
+plaintext = unpad(aes.decrypt(b64decode(ciphertext)), AES.block_size).decode('utf-8')
+print("Plaintext: ",plaintext)
+```
+
+
 ### RC4
 
 ### DES
+
+```python
+from Crypto.Cipher import DES
+from Crypto.Random import get_random_bytes
+from Crypto.Util.Padding import pad, unpad
+from base64 import b64encode, b64decode
+
+# inititate DES key and IV because we use CBC mode
+key = get_random_bytes(8)
+iv = get_random_bytes(8)
+
+# initialize encryptor
+cipher = DES.new(key, DES.MODE_CBC, iv)
+
+# add padding to fullfil the block size
+plaintext = b"GedaGediGedaGedao"
+ciphertext = b64encode(cipher.encrypt(pad(plaintext, DES.block_size))).decode('utf-8')
+
+print(f"Ciphertext: {ciphertext}")
+
+# initialize decryptor
+cipher = DES.new(key, DES.MODE_CBC, iv)
+decrypted_data = unpad(cipher.decrypt(b64decode(ciphertext)), DES.block_size).decode('utf-8')
+
+print(f"Plaintext: {decrypted_data}")
+```
 
 ## Golang
 
